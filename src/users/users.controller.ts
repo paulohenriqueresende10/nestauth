@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { Public } from 'src/auth/constants';
 
 @Controller('users')
 @ApiTags('users')
@@ -16,6 +17,7 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Public()
   @Get()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
