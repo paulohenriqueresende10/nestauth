@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,7 +10,18 @@ export class UsersService {
   
   create(createUserDto: CreateUserDto) {
     const password = encodePassword(createUserDto.password);
-    return this.prisma.user.create({ data: {...createUserDto, password } });
+    return this.prisma.user.create({ data: {...createUserDto, password }, select: { email: true, name: true } })
+      .catch((error) => {
+        if(error.meta.target === 'User_email_key') {
+          throw new BadRequestException(
+            'Account with this email already exists.',
+          );
+        }
+        throw new InternalServerErrorException(
+          "oops something went wrong. please try again later."
+        )
+      }
+    );
   }
 
   findAll() {
